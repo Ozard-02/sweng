@@ -30411,7 +30411,7 @@
 								"reference": {
 									"$ref": "AAAAAAGWSPVGgB1rKeE="
 								},
-								"cardinality": "0..*"
+								"cardinality": "1..*"
 							}
 						}
 					],
@@ -30514,7 +30514,7 @@
 								"reference": {
 									"$ref": "AAAAAAGWSPxgYx6SHbw="
 								},
-								"cardinality": "0..*"
+								"cardinality": "1..*"
 							},
 							"end2": {
 								"_type": "ERDRelationshipEnd",
@@ -30525,7 +30525,7 @@
 								"reference": {
 									"$ref": "AAAAAAGWSPVGgB1rKeE="
 								},
-								"cardinality": "0..*"
+								"cardinality": "1..*"
 							}
 						}
 					],
