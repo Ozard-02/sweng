@@ -594,6 +594,9 @@ external services)}
 \subsection{Components diagram}
 
 \includegraphics[width=\linewidth]{images/svg/ComponentDiagram.pdf}
+There have been inserted multiple interfaces named "Database" for readibility. Actually, there is only one database that is used by all the components.
+Its structure is shown in the next diagram:
+\includegraphics[width=\linewidth]{images/svg/ERDDiagram.pdf}
 
 \subsection{Subsystems and components}
 
@@ -802,12 +805,19 @@ adjusting traffic light timings based on crossing data.
 \bottomrule
 \endlastfoot
 Analyzing traffic patterns requires complex processing of historical and real-time data. & Our architecture is designed to separate the concerns of data collection, processing, and presentation. The \texttt{TrafficPatternManager} is specialized in creating algorithms to identify common traffic patterns and propose optimizations, while the \texttt{TrafficLightManager} handles the actual traffic light adjustments. \\
+\hline
 A scalable and efficient communication system is required to handle high-frequency data from sensors and from the news channel. & We decided to use the \texttt{ApacheKafkaCluster} to handle event-driven communication, allowing real-time and asynchronous data processing of a large volume requests. \\
+\hline
 The system must be able to provide adaptive responses to city events with a minimum latency. & The \texttt{EventManager} component processes the event data and classifies the event based on the expected attendance. It then triggers the \texttt{TrafficPatternManager}, which will provide an appropriate optimization routine. \\
+\hline
 The system must be able to provide a user-friendly interface for both citizens and urban area managers. & The \texttt{CitizenDashboard} and \texttt{UrbanAreaManagerDashboard} components are designed to provide intuitive interfaces for users to access reports and make decisions. The dashboards are separated from the core logic of the system to ensure modularity and maintainability. \\
+\hline
 Human stakeholders must be involved in taking decisions for critical changes. & On the \texttt{UrbanAreaManagerDashboard} pop up suggestions for optimizations retrieved directly from the unified database by the \texttt{UrbanAreaManagerController}. The human manager then decides whether to accept or reject the suggestions. When a response is received, the system logs the decisions in the database for future reference. \\
+\hline
 Supporting future scalability and integration of additional sensors or data sources. & We designed our architecture to be modular, allowing an extension of the sensor net or for new data sources. The \texttt{ApacheKafkaCluster} can easily integrate new actors, ensuring that the system can adapt to future needs without significant modifications. \\
+\hline
 The system must be able to handle data consistency and coherence during communication with external systems. & We implemented a robust error handling and data validation mechanism in the \texttt{TrafficLightManager} and \texttt{TrafficPatternManager} components to ensure that only valid data is processed and stored. This helps maintain data integrity and coherence across the system. \\
+\hline
 The system must be able to report real-time updates to the citizens. & The \texttt{CitizenDashboard} is designed to provide real-time updates on traffic optimizations and possible changes on viability. The system uses a push mechanism to notify citizens of significant changes, ensuring they are always informed. \\
 \end{longtable}
 \end{document}
