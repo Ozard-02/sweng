@@ -594,7 +594,8 @@ external services)}
 \subsection{Components diagram}
 
 \includegraphics[width=\linewidth]{images/svg/component_diagram.pdf}
-
+In this diagram, we've insert multiple interface called "database" for readibility, actually there's only database which
+structure is shown in the next diagram.\\
 \subsection{Subsystems and components}
 
 The EcoTrafficManagers subsystem includes the component:
@@ -723,7 +724,11 @@ adjusting traffic light timings based on crossing data.
   TrafficLightManager sends a message to the traffic light control
   system with the modification to perform.
 \item
-  Traffic light control system applies the changes
+  Successful modifications.
+\item
+  TrafficLightManager writes into a log file the modifications done.
+\item
+  Succesful store.
 \end{enumerate}
 
 
@@ -790,11 +795,5 @@ adjusting traffic light timings based on crossing data.
 
 
 \section{Critical points and design decisions}
-Critical point: Analyzing traffic patterns requires complex processing of
-historical and real-time data.
 
-Design decision: The TrafficPatternManager component implements specialized
-algorithms for identifying patterns and proposing optimizations. This 
-component has been isolated from data collection and presentation concerns 
-to maintain separation of concerns.
 \end{document}
