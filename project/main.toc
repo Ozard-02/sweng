@@ -36,7 +36,7 @@
 \contentsline {section}{\numberline {3.2}Sequence Diagrams}{15}{section.3.2}%
 \contentsline {subsubsection}{Traffic Lights Adjustment}{15}{subsubsection*.16}%
 \contentsline {subsubsection}{Traffic Zone Optimization}{16}{subsubsection*.17}%
-\contentsline {subsubsection}{Event-specific Configuration}{18}{subsubsection*.18}%
-\contentsline {subsubsection}{Citizen views public reports}{19}{subsubsection*.19}%
+\contentsline {subsubsection}{Event-specific Configuration}{17}{subsubsection*.18}%
+\contentsline {subsubsection}{Citizen views public reports}{18}{subsubsection*.19}%
 \contentsline {subsubsection}{UAM configuration}{19}{subsubsection*.20}%
-\contentsline {section}{\numberline {3.3}Critical points and design decisions}{20}{section.3.3}%
+\contentsline {section}{\numberline {3.3}Critical points and design decisions}{19}{section.3.3}%

@@ -594,8 +594,7 @@ external services)}
 \subsection{Components diagram}
 
 \includegraphics[width=\linewidth]{images/svg/ComponentDiagram.pdf}
-In this diagram, we've insert multiple interface called "database" for readibility, actually there's only database which
-structure is shown in the next diagram.\\
+
 \subsection{Subsystems and components}
 
 The EcoTrafficManagers subsystem includes the component:
@@ -724,11 +723,7 @@ adjusting traffic light timings based on crossing data.
   TrafficLightManager sends a message to the traffic light control
   system with the modification to perform.
 \item
-  Successful modifications.
-\item
-  TrafficLightManager writes into a log file the modifications done.
-\item
-  Succesful store.
+  Traffic light control system applies the changes
 \end{enumerate}
 
 
@@ -795,5 +790,44 @@ adjusting traffic light timings based on crossing data.
 
 
 \section{Critical points and design decisions}
-
+  \begin{itemize}
+    \item \textbf{Critical point:} Analyzing traffic patterns requires complex processing of historical and real-time data.
+    \item \textbf{Design decision:} Our architecture is designed to separate the
+      concerns of data collection, processing, and presentation. The
+      \texttt{TrafficPatternManager} is specialized in creating algorithms to identify
+      common traffic patterns and propose optimizations, while the
+      \texttt{TrafficLightManager} handles the actual traffic light adjustments. \\
+    
+    \item \textbf{Critical point:} A scalable and efficient communication system is required to handle high-frequency data from sensors and from the news channel. 
+    \item \textbf{Design decision:} We decided to use the \texttt{ApacheKafkaCluster} to handle event-driven communication,
+      allowing real-time and asynchronous data processing of a large volume requests. \\
+      
+    \item \textbf{Critical point:} The system must be able to provide adaptive responses to city events with a minimum latency.
+    \item \textbf{Design decision:} The \texttt{EventManager} component processes the event data and
+      classifies the event based on the expected attendance. It then triggers the \texttt{TrafficPatternManager},
+      which will provide an appropriate optimization routine. \\
+    
+    \item \textbf{Critical point:} The system must be able to provide a user-friendly interface for both citizens and urban area managers.
+    \item \textbf{Design decision:} The \texttt{CitizenDashboard} and \texttt{UrbanAreaManagerDashboard} components are designed to provide
+      intuitive interfaces for users to access reports and make decisions. The dashboards are
+      separated from the core logic of the system to ensure modularity and maintainability. \\
+    
+    \item \textbf{Critical point:} Human stakeholders must be involved in taking decisions for critical changes.
+    \item \textbf{Design decision:} On the \texttt{UrbanAreaManagerDashboard} pop up suggestions for optimizations
+      retreived directly from the unified databasse by the \texttt{UrbanAreaManagerController}. The human manager then decides
+      whether to accept or reject the suggestions. When a response is received, the system logs the decisions in the database for future reference. \\
+    
+    \item \textbf{Critical point:} Supporting future scalability and integration of additional sensors or data sources.
+    \item \textbf{Design decision:} We designed our architecture to be modular, allowing an extension of the sensor net or for new data sources. 
+      The \texttt{ApacheKafkaCluster} can easily integrate new actors, ensuring that the system can adapt to future needs without significant modifications. \\
+    
+    \item \textbf{Critical point:} The system must be able to handle data consistency and coherence during communication with external systems.
+    \item \textbf{Design decision:} We implemented a robust error handling and data validation mechanism in the \texttt{TrafficLightManager} and \texttt{TrafficPatternManager} components to ensure that only valid data is processed and stored.
+      This helps maintain data integrity and coherence across the system. \\
+    
+    \item \textbf{Critical point:} The system must be able to report real-time updates to the citizens. 
+    \item \textbf{Design decision:} The \texttt{CitizenDashboard} is designed to provide real-time updates on traffic optimizations and possible changes on viability.
+     The system uses a push mechanism to notify citizens of significant changes, ensuring they are always informed. \\
+    
+    \end{itemize}
 \end{document}
