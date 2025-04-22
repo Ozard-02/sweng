@@ -58,11 +58,22 @@ transport schedules.
   \item Event Planners: coordinate with the system for efficient management of large events.
 \end{itemize}
 
+\chapter{Requirement Analysis}
+
+\section{Actors}
+\subsection{Human Actors}
+\begin{itemize}
+  \item Drivers: use the traffic light system.
+  \item Citizens: access the EcoTraffic public portal to view traffic reports and use public transport services.
+  \item Urban Area Manager (UAM): responsible for approving or rejecting traffic light configurations and optimizations.
+\end{itemize}
+
+
 \subsection{Non-Human Actors}
 \begin{itemize}
-  \item Traffic Lights: get its state set from the EcoTraffic system for a determined period.
-  \item Sensor Infrastructure: send sensor information to the EcoTraffic system via data bus.
-  \item Public Transport Microservice: sends public transport schedules to the EcoTraffic system via function calls.
+  \item Traffic Lights: get their state set from the EcoTraffic system for a determined period.
+  \item Sensor Infrastructure: sends sensor information to the EcoTraffic system via data bus.
+  \item Public Transport Microservice: sends public transport schedule to the EcoTraffic system via function calls.
   \item News Channel: transmits information about city events to the EcoTraffic system.
 \end{itemize}
 
@@ -232,8 +243,10 @@ transport schedules.
   EcoTraffic records the UAM's decision in a log file for yearly reporting.
 \end{enumerate}
 
-\subsection{Use case diagrams (to modify and insert diagrams)}
+\subsection{Use case diagrams}
 \subsubsection{Traffic light duration adjustment}
+
+\includegraphics[width=\linewidth]{images/svg/traffic_light_adjustment.pdf}
 
 \rowcolors{3}{gray!10}{white}
 
@@ -262,35 +275,9 @@ Exit condition & The system sends the adjusted times to the traffic lights contr
 \end{longtable}
 
 
-\subsubsection{Daily Analysis and Optimization}
-
-\rowcolors{3}{gray!10}{white}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.45\textwidth} >{\raggedright\arraybackslash}p{0.45\textwidth}}
-\toprule
-\textbf{Aspect} & \textbf{Description} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r}{\textit{Continues on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-
-Actors & Webservice, Database \\
-Entry condition & It's ten past midnight. \\
-Flow of events &
-\begin{enumerate}
-  \item EcoTraffic queries the database to get all the crossing times measured the day before.
-  \item EcoTraffic analyzes the data retrieved to obtain traffic patterns.
-  \item EcoTraffic analyzes the traffic patterns to identify potential optimizations regarding one-way roads and traffic light configurations.
-  \item EcoTraffic retrieves public transport schedules via microservice using getScheduleByStreet and getScheduleByLine operations.
-  \item EcoTraffic tries to find better schedules for the public transport line.
-\end{enumerate}
-\\
-Exit condition & The system writes into the database the possible optimization found. \\
-\end{longtable}
-
 \subsubsection{Traffic zone optimization}
+
+\includegraphics[width=\linewidth]{images/svg/traffic_zone_optimization.pdf}
 
 \rowcolors{3}{gray!10}{white}
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.45\textwidth} >{\raggedright\arraybackslash}p{0.45\textwidth}}
@@ -323,6 +310,8 @@ Exit condition & Successful write of the log and successful communication with t
 
 \subsubsection{Event-specific configurations}
 
+\includegraphics[width=\linewidth]{images/svg/event-specific_configurations.pdf}
+
 \rowcolors{3}{gray!10}{white}
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.45\textwidth} >{\raggedright\arraybackslash}p{0.45\textwidth}}
 \toprule
@@ -343,6 +332,35 @@ Flow of events &
   \item EcoTraffic queries the database for historical traffic patterns and reviews past decisions recorded in log files for similar events.
   \item EcoTraffic retrieves public transport schedules via microservice using getScheduleByStreet and getScheduleByLine operations.
   \item Using the collected data, EcoTraffic generates event-specific configurations that are optimized in terms of one-way roads, traffic light configurations, public transport schedules.
+\end{enumerate}
+\\
+Exit condition & The system writes into the database the possible optimization found. \\
+\end{longtable}
+
+
+\subsubsection{Daily Analysis and Optimization}
+
+\rowcolors{3}{gray!10}{white}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.45\textwidth} >{\raggedright\arraybackslash}p{0.45\textwidth}}
+\toprule
+\textbf{Aspect} & \textbf{Description} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{Continues on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+Actors & Webservice, Database \\
+Entry condition & It's ten past midnight. \\
+Flow of events &
+\begin{enumerate}
+  \item EcoTraffic queries the database to get all the crossing times measured the day before.
+  \item EcoTraffic analyzes the data retrieved to obtain traffic patterns.
+  \item EcoTraffic analyzes the traffic patterns to identify potential optimizations regarding one-way roads and traffic light configurations.
+  \item EcoTraffic retrieves public transport schedules via microservice using getScheduleByStreet and getScheduleByLine operations.
+  \item EcoTraffic tries to find better schedules for the public transport line.
 \end{enumerate}
 \\
 Exit condition & The system writes into the database the possible optimization found. \\
@@ -496,6 +514,8 @@ Exit condition & All the decisions have been taken. \\
 \item
   The system should be scalable to support the addition of new sensors and bus lines 
   without requiring significant changes to the architecture.
+\item
+  The system dashboard should be web-based and accessible from any device.
 \end{non_functional_requirements}
 
 \subsection{Constraints (to modify, insert something to use the
@@ -506,6 +526,10 @@ external services)}
   The setLight function must be atomical.
 \item
   The call to the microservice must be done using an API REST.
+\item
+ All data must be stored in a PostgreSQL database.
+\item 
+ The frontend must use only open-source libraries.
 \end{constraints}
 
 \chapter{Design}
@@ -533,13 +557,13 @@ The EcoTrafficManagers subsystem includes the following components:
   them to the right components, which will then process and analyze them.
   More information can be found at \url{https://kafka.apache.org/}.
 \item
-  \textbf{TrafficLightManager:} this component receives the data
+  \textbf{PlannerManager:} this component receives the data
   measured by the sensors system from the ApacheKafkaCluster and
   provides a method to analyze this data to find unbalanced traffic loads
   into a crossing, to compute the new time in which the green light is
   switched on to reduce traffic congestion, to store into the database
   of the system the data obtained from the ApacheKafkaCluster and to
-  connect to the control system of the traffic lights to apply the right
+  connect to the TrafficLightManager to apply the right
   modifications.
 \item
   \textbf{EventManager:} this component receives the event specification
@@ -565,6 +589,10 @@ The EcoTrafficManagers subsystem includes the following components:
   area and finds traffic patterns, after that, it tries to optimize in
   terms of one-way roads, traffic lights configuration, and public
   transport schedule.
+\item 
+  \textbf{TrafficLightManager:} this component is responsible for
+  managing the traffic lights. It receives immediate adjustments from the
+  PlannerManager and new schedules from the UrbanAreaManagerController.
 \end{itemize}
 
 The Dashboard subsystem includes the following components:
@@ -599,7 +627,8 @@ The Dashboard subsystem includes the following components:
   managing the requests arriving from the dashboard and redirecting them
   either to the database if the UAM wants to see the pending suggestions
   or to the TrafficPatternManager if the UAM wants an optimization for a
-  specific zone. After the responses arrive, the component sends them to
+  specific zone or to the TrafficLightManager if the UAM wants to
+  set a new schedule directly to the traffic lights. After the responses arrive, the component sends them to
   the dashboard. If the answer is an optimization the component waits
   for the approval or the rejection and stores the decision.
 \end{itemize}
@@ -624,29 +653,34 @@ adjusting traffic light timings based on crossing data.
 \item
   The Apache Kafka Cluster responds to the traffic light sensor system.
 \item
-  TrafficLightManager is working.
+  PlannerManager is working.
 \item
-  TrafficLightManager tries to get a message.
+  PlannerManager tries to get a message.
 \item
-  The message, if present, is sent to TrafficLightManager. The point 6
+  The message, if present, is sent to PlannerManager. The point 6
   and 7 are better shown in this diagram.
 \item
-  TrafficLightManager elaborates the message received extracting the
+  PlannerManager elaborates the message received extracting the
   important information.
 \item
-  TrafficLightManager sends a message to the database to make it store
+  PlannerManager sends a message to the database to make it store
   the data received.
 \item
   Successful store.
 \item
-  TrafficLightManager analyzes the data received to find eventually
+  PlannerManager analyzes the data received to find eventually
   unbalanced traffic loads. If it finds them, then it computes also the
   new green light time for a particular traffic light.
 \item
-  TrafficLightManager sends a message to the traffic light control
-  system with the modification to perform.
+  PlannerManager sends a message to the TrafficLightManager with the modifications to perform.
 \item
-  Traffic light control system applies the changes
+  TrafficLightManager sends a the instructions to the traffic light control system.
+\item 
+  TrafficLightManager receives the ack message from the traffic light
+  control system.
+\item
+  TrafficLightManager sends a message to the PlannerManager to
+  confirm that the modifications have been performed.
 \end{enumerate}
 
 
@@ -701,7 +735,7 @@ adjusting traffic light timings based on crossing data.
 \includegraphics[width=\linewidth]{images/svg/citizen_views_public_traffic_reports.pdf}
 
 This sequence diagram shows the communication and data flow involved in
-adjusting traffic light timings based on crossing data.
+citizens viewing public traffic reports.
 
 
 \subsubsection{UAM configuration}
@@ -709,8 +743,7 @@ adjusting traffic light timings based on crossing data.
 \includegraphics[width=\linewidth]{images/svg/uam_configuration.pdf}
 
 This sequence diagram shows the communication and data flow involved in
-adjusting traffic light timings based on crossing data.
-
+UAM configuration and how the UAM can approve or reject the suggestions proposed by the system.
 
 \section{Critical points and design decisions}
 
@@ -747,7 +780,7 @@ Supporting future scalability and integration of additional sensors or data sour
 We designed our architecture to be modular, allowing an extension of the sensor net or for new data sources. The \texttt{ApacheKafkaCluster} can easily integrate new actors, ensuring that the system can adapt to future needs without significant modifications. \\
 
 The system must be able to handle data consistency and coherence during communication with external systems. &
-We implemented a robust error handling and data validation mechanism in the \texttt{TrafficLightManager} and \texttt{TrafficPatternManager} components to ensure that only valid data is processed and stored. This helps maintain data integrity and coherence across the system. \\
+We implemented a robust error handling and data validation mechanism in the \texttt{PlannerManager} and \texttt{TrafficPatternManager} components to ensure that only valid data is processed and stored. This helps maintain data integrity and coherence across the system. \\
 
 The system must be able to report real-time updates to the citizens. &
 The \texttt{CitizenDashboard} is designed to provide real-time updates on traffic optimizations and possible changes on viability. The system uses a push mechanism to notify citizens of significant changes, ensuring they are always informed. \\
